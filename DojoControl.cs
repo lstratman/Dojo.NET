@@ -10,8 +10,6 @@ namespace Dojo.Net
 {
     public abstract class DojoControl : WebControl
     {
-        protected StringBuilder _requiresScript = new StringBuilder();
-
         protected override void OnInit(EventArgs e)
         {
             base.OnInit(e);
@@ -28,21 +26,7 @@ namespace Dojo.Net
 
         protected void Require(string type)
         {
-            if (Page.GetType().Name == "ViewUserControlContainerPage")
-                _requiresScript.Append("dojo.require(\"" + type + "\");\n");
-
-            else
-                ResourceManager.Require(type);
-        }
-
-        protected override void Render(HtmlTextWriter writer)
-        {
-            base.Render(writer);
-
-            writer.AddAttribute("type", "text/javascript");
-            writer.RenderBeginTag("script");
-            writer.Write(_requiresScript.ToString());
-            writer.RenderEndTag();
+            ResourceManager.Require(type);
         }
 
         protected ResourceManager ResourceManager
