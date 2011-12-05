@@ -8,11 +8,6 @@ namespace Dojo.Net
 {
     public class CurrencyTextBox : DojoInputControl<double?>
     {
-        public CurrencyTextBox()
-        {
-            AllowFractional = true;
-        }
-
         public double? Minimum
         {
             get;
@@ -59,22 +54,18 @@ namespace Dojo.Net
             }
         }
 
-        public bool AllowFractional
-        {
-            get;
-            set;
-        }
-
         public override void RenderBeginTag(HtmlTextWriter writer)
         {
             StringBuilder constraints = new StringBuilder("{");
-            constraints.AppendFormat("fractional: {0}", AllowFractional.ToString().ToLower());
 
             if (Minimum != null)
-                constraints.AppendFormat(", min: {0}", Minimum);
+                constraints.AppendFormat("min: {0}, ", Minimum);
 
             if (Maximum != null)
-                constraints.AppendFormat(", max: {0}", Maximum);
+                constraints.AppendFormat("max: {0}, ", Maximum);
+
+            if (constraints.Length > 1)
+                constraints.Length -= 2;
 
             constraints.Append("}");
             writer.AddAttribute("constraints", constraints.ToString());
