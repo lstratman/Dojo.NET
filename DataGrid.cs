@@ -67,13 +67,15 @@ namespace Dojo.Net
             writer.RenderBeginTag("thead");
             writer.RenderBeginTag("tr");
 
-            foreach (DataGridColumn column in Columns)
+            foreach (Column column in Columns)
             {
-                if (column is BoundColumn)
-                    writer.AddAttribute("field", ((BoundColumn)column).DataField);
+				writer.AddAttribute("field", column.DataField);
 
-                if (column.HeaderStyle.Width.Value > 0)
-                    writer.AddAttribute("width", column.HeaderStyle.Width.ToString());
+            	if (column.Width.Value > 0)
+                    writer.AddAttribute("width", column.Width.ToString());
+
+				if (!String.IsNullOrEmpty(column.Formatter))
+					writer.AddAttribute("formatter", column.Formatter);
 
                 writer.RenderBeginTag("th");
                 writer.Write(column.HeaderText);
@@ -93,7 +95,7 @@ namespace Dojo.Net
         }
 
         [PersistenceMode(PersistenceMode.InnerProperty)]
-        public List<DataGridColumn> Columns
+        public List<Column> Columns
         {
             get;
             set;
