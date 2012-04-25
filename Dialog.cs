@@ -15,8 +15,11 @@ namespace Dojo.Net
         {
             base.OnInit(e);
 
-            Content.InstantiateIn(_placeHolder);
-            Controls.Add(_placeHolder);
+			if (Content != null)
+			{
+				Content.InstantiateIn(_placeHolder);
+				Controls.Add(_placeHolder);
+			}
         }
 
         protected override string DojoType
@@ -39,6 +42,19 @@ namespace Dojo.Net
                 Attributes["title"] = value;
             }
         }
+
+    	public string Href
+    	{
+			get
+			{
+				return Attributes["href"];
+			}
+
+			set
+			{
+				Attributes["href"] = value;
+			}
+    	}
 
         public string Text
         {
