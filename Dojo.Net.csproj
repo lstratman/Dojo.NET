@@ -63,6 +63,7 @@
     <Compile Include="DojoTheme.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextBox.cs" />
+    <Compile Include="TimeTextBox.cs" />
     <Compile Include="TitlePane.cs" />
     <Compile Include="TooltipPosition.cs" />
   </ItemGroup>
