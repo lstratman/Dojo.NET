@@ -16,6 +16,19 @@ namespace Dojo.Net
             Items = new ListItemCollection();
         }
 
+        public bool Required
+        {
+            get
+            {
+                return Attributes["required"] != null && bool.Parse(Attributes["required"]);
+            }
+
+            set
+            {
+                Attributes["required"] = value.ToString().ToLower();
+            }
+        }
+
         protected override string DojoType
         {
             get
