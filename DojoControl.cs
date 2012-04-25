@@ -14,6 +14,9 @@ namespace Dojo.Net
         {
             base.OnInit(e);
 
+			if (ResourceManager.Current == null)
+				ResourceManager.Current = new ResourceManager();
+
             if (Attributes["dojoType"] == null)
                 SetType(DojoType);
         }
@@ -33,9 +36,7 @@ namespace Dojo.Net
         {
             get
             {
-                ResourceManager resourceManager =
-                    HttpContext.Current.Items["__DojoResourceManager"] as
-                    ResourceManager;
+                ResourceManager resourceManager = ResourceManager.Current;
 
                 if (resourceManager == null)
                     throw new Exception("A DojoResourceManager instance has not been added to the page.");
@@ -43,6 +44,13 @@ namespace Dojo.Net
                 return resourceManager;
             }
         }
+
+		protected override void OnPreRender(EventArgs e)
+		{
+			base.OnPreRender(e);
+
+			Attributes["data-dojo-id"] = ClientID;
+		}
 
         protected abstract string DojoType
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
@@ -8,33 +9,13 @@ using System.Web.UI;
 
 namespace Dojo.Net
 {
-    public class ResourceManager : WebControl
+    public class ResourceManager
     {
-        protected LiteralControl _requiresScript = new LiteralControl(@"<script type=""text/javascript"">
-</script>
-");
         protected List<string> _requires = new List<string>();
 
         public ResourceManager()
         {
             Theme = DojoTheme.Claro;
-        }
-
-        protected override void OnInit(EventArgs e)
-        {
-            base.OnInit(e);
-
-            if (HttpContext.Current.Items["__DojoResourceManager"] == null)
-                HttpContext.Current.Items["__DojoResourceManager"] = this;
-
-            Control destination = (Control)Page.Header ?? this;
-
-            destination.Controls.Add(new LiteralControl(String.Format(@"
-<script src=""{0}/dojo.axd/Scripts/dojo/dojo.js"" type=""text/javascript"" djConfig=""parseOnLoad: true""></script>
-", Page.Request.ApplicationPath)));
-            destination.Controls.Add(new LiteralControl(String.Format(@"<link rel=""stylesheet"" type=""text/css"" href=""{0}/dojo.axd/Scripts/dijit/themes/{1}/{1}.css""/>
-", Page.Request.ApplicationPath, ThemeName ?? Theme.ToString("G").ToLower())));
-            destination.Controls.Add(_requiresScript);
         }
 
         public void Require(string feature)
@@ -43,13 +24,27 @@ namespace Dojo.Net
                 return;
 
             _requires.Add(feature);
-            _requiresScript.Text = _requiresScript.Text.Insert(_requiresScript.Text.IndexOf("</script>"),
-                                                               String.Format("\tdojo.require(\"{0}\");\n", feature));
         }
 
-        protected override void Render(HtmlTextWriter writer)
+        public string Render(HttpContext httpContext)
         {
-            RenderContents(writer);
+			StringBuilder output = new StringBuilder();
+
+			output.AppendFormat(@"
+	<script src=""{0}/dojo.axd/Scripts/dojo/dojo.js"" type=""text/javascript"" djConfig=""parseOnLoad: true""></script>
+", httpContext.Request.ApplicationPath);
+			output.AppendFormat(@"	<link rel=""stylesheet"" type=""text/css"" href=""{0}/dojo.axd/Scripts/dijit/themes/{1}/{1}.css""/>
+", httpContext.Request.ApplicationPath, ThemeName ?? Theme.ToString("G").ToLower());
+			output.Append(@"	<script type=""text/javascript"">
+");
+
+			foreach (string feature in _requires)
+				output.AppendFormat("\t\tdojo.require(\"{0}\");\n", feature);
+
+			output.Append(@"	</script>
+");
+
+        	return output.ToString();
         }
 
         public string ThemeName
@@ -63,5 +58,18 @@ namespace Dojo.Net
             get;
             set;
         }
+
+    	public static ResourceManager Current
+    	{
+    		get
+    		{
+				return HttpContext.Current.Items["__DojoResourceManager"] as ResourceManager;
+    		}
+
+			set
+			{
+				HttpContext.Current.Items["__DojoResourceManager"] = value;
+			}
+    	}
     }
 }
