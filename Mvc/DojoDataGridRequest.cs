@@ -11,6 +11,7 @@ namespace Dojo.Net.Mvc
     public class DojoDataGridRequest
     {
         protected List<SortingColumn> _sortingColumns = new List<SortingColumn>();
+		protected Dictionary<string, string> _filters = new Dictionary<string, string>();
 
         public int LowerBound
         {
@@ -39,7 +40,25 @@ namespace Dojo.Net.Mvc
                 return _sortingColumns;
             }
         }
+
+    	public Dictionary<string, string> Filters
+    	{
+    		get
+    		{
+    			return _filters;
+    		}
+    	}
     }
+
+	public static class IEnumerableExtensions
+	{
+		public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, SortDirection sortDirection)
+		{
+			return sortDirection == SortDirection.Ascending
+			       	? source.OrderBy(keySelector)
+			       	: source.OrderByDescending(keySelector);
+		}
+	}
 
     public class SortingColumn
     {
@@ -69,7 +88,29 @@ namespace Dojo.Net.Mvc
             dataGridRequest.LowerBound = bounds[0];
             dataGridRequest.UpperBound = bounds[1];
 
-            return dataGridRequest;
+			for (int i = 0; i < controllerContext.HttpContext.Request.QueryString.Count; i++)
+			{
+				string key = controllerContext.HttpContext.Request.QueryString.GetKey(i);
+				string value = controllerContext.HttpContext.Request.QueryString.Get(i);
+
+				if (key == null)
+				{
+					if (value.StartsWith("sort("))
+						dataGridRequest.SortingColumns.Add(
+							new SortingColumn
+								{
+									ColumnName = value.Substring(6, value.Length - 7),
+									SortDirection = value.Substring(5, 1) == "-"
+									                	? SortDirection.Descending
+									                	: SortDirection.Ascending
+								});
+				}
+
+				else
+					dataGridRequest.Filters[key] = value;
+			}
+
+        	return dataGridRequest;
         }
     }
 }
