@@ -23,10 +23,8 @@ namespace Dojo.Net.Mvc
 
         public override void ExecuteResult(ControllerContext context)
         {
-            context.HttpContext.Response.Headers["Content-Range"] = "items " + _dataGridRequest.LowerBound + "-" +
-                                                                    Math.Min(_totalCount, _dataGridRequest.UpperBound) +
-                                                                    "/" +
-                                                                    _totalCount;
+            context.HttpContext.Response.AddHeader(
+                "Content-Range", "items " + _dataGridRequest.LowerBound + "-" + Math.Min(_totalCount, _dataGridRequest.UpperBound) + "/" + _totalCount);
 
             base.ExecuteResult(context);
         }
